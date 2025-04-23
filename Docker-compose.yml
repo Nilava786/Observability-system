@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # 🔵 Sample Node.js App
+  observability-app:
+    build: ./app
+    ports:
+      - "3000:3000"
+    labels:
+      - "logging=promtail"
+    networks:
+      - observability
+
+  # 📊 Prometheus
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - observability
+
+  # 📈 Grafana
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - observability
+
+  # 📂 Loki (Log Aggregator)
+  loki:
+    image: grafana/loki:2.9.2
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml
+    ports:
+      - "3100:3100"
+    networks:
+      - observability
+
+  # 🌀 Promtail (Log Shipper)
+  promtail:
+    image: grafana/promtail:2.9.2
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+      - /var/log:/var/log
+      - /etc/hostname:/etc/hostname
+      - /etc/machine-id:/etc/machine-id
+      - /proc:/host/proc
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /dev/log:/dev/log
+    command: -config.file=/etc/promtail/promtail-config.yml
+    networks:
+      - observability
+
+  # 🔍 Jaeger (Distributed Tracing)
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    ports:
+      - "16686:16686"  # UI
+      - "6831:6831/udp" # Thrift compact
+      - "4317:4317"     # OpenTelemetry gRPC
+      - "4318:4318"     # OpenTelemetry HTTP
+    networks:
+      - observability
+
+volumes:
+  grafana-storage:
+
+networks:
+  observability:

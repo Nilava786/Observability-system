@@ -1,0 +1,106 @@
+{
+    "id": null,
+    "uid": "app-observability",
+    "title": "App Metrics Dashboard",
+    "version": 1,
+    "tags": ["node", "metrics", "prometheus"],
+    "timezone": "browser",
+    "schemaVersion": 37,
+    "refresh": "5s",
+    "panels": [
+      {
+        "type": "stat",
+        "title": "Total HTTP Requests",
+        "id": 1,
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "http_requests_total",
+            "format": "time_series",
+            "interval": "",
+            "intervalFactor": 2,
+            "legendFormat": "",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "orange", "value": 100 },
+                { "color": "red", "value": 500 }
+              ]
+            }
+          },
+          "overrides": []
+        }
+      },
+      {
+        "type": "graph",
+        "title": "Requests per Second",
+        "id": 2,
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[1m])",
+            "format": "time_series",
+            "interval": "",
+            "legendFormat": "req/sec",
+            "refId": "A"
+          }
+        ],
+        "lines": true,
+        "fill": 1,
+        "linewidth": 2,
+        "points": false,
+        "aliasColors": {},
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": 0,
+            "show": true
+          },
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ]
+      },
+      {
+        "type": "stat",
+        "title": "Uptime",
+        "id": 3,
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "time() - process_start_time_seconds",
+            "format": "time_series",
+            "interval": "",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 0
+          },
+          "overrides": []
+        }
+      }
+    ]
+  }
+  
